@@ -1,0 +1,4 @@
+name = "InstaTrailer"
+uuid = "75dbb358-acbd-4f5b-9e42-63d2717d5dc9"
+authors = ["Evert Schippers <schippers.evert@gmail.com>"]
+version = "0.1.0"
