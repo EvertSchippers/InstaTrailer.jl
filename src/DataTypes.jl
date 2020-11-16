@@ -12,7 +12,7 @@ struct ImuData
     angularvelocityZ::Float64
 end
 
-export ImuData, read_imu
+export ImuData, ImuDataType, read_imu
 
 read_data(::Type{ImuDataType}, io::IO, number_of_bytes::Integer) = read_samples(ImuData, io, number_of_bytes)
 
@@ -37,7 +37,7 @@ struct ExposureData
     exposure::Float64
 end
 
-export ExposureData, read_exposure
+export ExposureData, ExposureDataType, read_exposure
 
 read_data(::Type{ExposureDataType}, io::IO, number_of_bytes::Integer) = read_samples(ExposureData, io, number_of_bytes)
 
@@ -52,4 +52,30 @@ function read_exposure(insv_file::AbstractString)
     end
 
     return records[ExposureDataType]
+end
+
+
+########## MAKER NOTES #####################
+
+const MakerNotesDataType = TrailerType{0x101}
+
+export MakerNotes, MakerNotesDataType
+
+struct MakerNotes
+    MakerNotes(raw::Dict{UInt8, Vector{UInt8}}) = new(
+        String(raw[0x0a]),
+        String(raw[0x12]),
+        String(raw[0x1a]),
+        String.(split(String(raw[0x2a]), '_'))
+    )
+
+    serial_number::String
+    model::String
+    firmware::String
+    parameters::Vector{String}
+end
+
+function read_data(::Type{MakerNotesDataType}, io::IO, number_of_bytes::Integer) 
+    notes = MakerNotes( read_notes(io, 4, number_of_bytes) )
+    return notes
 end

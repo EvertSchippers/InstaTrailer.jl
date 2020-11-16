@@ -56,3 +56,47 @@ Assumes the type `T` has a `milliseconds` field and returns normal seconds based
 function get_time(sample_with_milliseconds::T) where T
     return sample_with_milliseconds.milliseconds / 1000
 end
+
+"""
+    read_notes(io::IO, number_of_bytes::Integer)
+
+Read a series of byte vectors, which are preceeded by an ID-byte and a vector-lenght-byte. Thus, the vector lengths cannot exceed 255 bytes.
+"""
+function read_notes(io::IO, number_of_notes::Int, number_of_bytes::Integer)
+
+    result = Dict{UInt8,Vector{UInt8}}()
+    max_position = position(io) + number_of_bytes
+
+    while !eof(io) && ((position(io) + 2) < max_position)
+       note = read_note(io)
+       result[note.first] = note.second
+       if length(result) == number_of_notes
+            break
+       end
+    end
+
+    if position(io) > max_position
+        throw(InstaTrailerException("Maker notes corrupted. IO-stream overread..."))
+    end
+
+    if length(result) != number_of_notes
+        throw(InstaTrailerException("Maker notes corrupted. Could not read $(number_of_notes) notes..."))
+    end
+
+    # todo: what's this data?
+    the_rest = read(io, max_position - position(io))
+
+    return result
+end
+
+function read_note(io::IO)::Pair{UInt8, Vector{UInt8}}
+    id = read(io, UInt8)
+    note_size = read(io, UInt8)
+    bytes = read(io, note_size)
+
+    if length(bytes) < note_size
+        throw(InstaTrailerException("Read note reached EOF."))
+    end
+
+    return id => bytes
+end

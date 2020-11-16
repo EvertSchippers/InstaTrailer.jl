@@ -13,13 +13,17 @@ include("Utilities.jl")
           extract_trailers(io)
      end
 
-     @test TrailerType{0x0101} in keys(records)
-     #  UInt16[0x0101, 0x0200, 0x0300, 0x0400, 0x0500]
+     @test eltype(records[ImuDataType]) == ImuData
+     @test eltype(records[ExposureDataType]) == ExposureData
 
-     @test eltype(records[TrailerType{0x300}]) == ImuData
-     @test eltype(records[TrailerType{0x400}]) == ExposureData
-
-     @test length(records[TrailerType{0x300}]) == 1548
-     @test length(records[TrailerType{0x400}]) == 97
+     @test length(records[ImuDataType]) == 1548
+     @test length(records[ExposureDataType]) == 97
      
+     notes = records[MakerNotesDataType]
+     @test notes isa MakerNotes
+     @test notes.serial_number == "4267CGD3E15FAB"
+     @test notes.model == "Insta360 EVO"
+     @test notes.firmware == "v1.3.1_build1"
+     @test length(notes.parameters) == 16
+
 end
