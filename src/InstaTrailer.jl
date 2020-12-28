@@ -1,5 +1,7 @@
 module InstaTrailer
 
+using PackedReadWrite
+
 include("Utilities.jl")
 include("TrailerType.jl")
 
@@ -36,6 +38,12 @@ function extract_trailers(io::IO)
     return Dict(records)
 end
 
+"""
+    extract_trailer!(io::IO)
+Extracts a trailer from `io`, expecting `position(io)` to start at the data type identifier. 
+After extraction, `seek` is used to move up to the next trailer. 
+So, this method can be called in a loop to extract all trailers one by one.
+"""
 function extract_trailer!(io::IO)
 
     current_position = position(io)

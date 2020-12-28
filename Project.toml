@@ -2,3 +2,10 @@ name = "InstaTrailer"
 uuid = "75dbb358-acbd-4f5b-9e42-63d2717d5dc9"
 authors = ["Evert Schippers <schippers.evert@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+PackedReadWrite = "5d6e2f64-5c87-46b6-9ff4-cf810e78676d"
+
+[compat]
+julia = "1"
+PackedReadWrite = "0.1"

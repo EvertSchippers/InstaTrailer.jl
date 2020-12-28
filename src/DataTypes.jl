@@ -12,6 +12,9 @@ struct ImuData
     angularvelocityZ::Float64
 end
 
+# speeds up reading these structs from binary data: 
+@reflect ImuData
+
 export ImuData, ImuDataType, read_imu
 
 read_data(::Type{ImuDataType}, io::IO, number_of_bytes::Integer) = read_samples(ImuData, io, number_of_bytes)
@@ -36,6 +39,9 @@ struct ExposureData
     milliseconds::UInt64
     exposure::Float64
 end
+
+# speeds up reading these structs from binary data: 
+@reflect ExposureData
 
 export ExposureData, ExposureDataType, read_exposure
 

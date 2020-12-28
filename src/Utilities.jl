@@ -35,15 +35,19 @@ end
 """
     read_samples(::Type{T}, io::IO, number_of_bytes::Integer) where T
 
-Reads `number_of_bytes` bytes from `io` and reinterprets them as elements of `T`.
+Makes sure `number_of_bytes` gets you an integer amount of `T`'s, given the sum of the size of the fields of `T`. Then uses `read_struct` to read that amount from `io`.
 """
 function read_samples(::Type{T}, io::IO, number_of_bytes::Integer) where T
     
-    if mod(number_of_bytes, sizeof(T)) != 0 
+    packed_size = sum(sizeof.(fieldtypes(T)))
+
+    if mod(number_of_bytes, packed_size) != 0 
         throw(InstaTrailerException("Cannot fit a whole number of $(T)'s in trailer."))
     end
 
-    return reinterpret(T, read(io, number_of_bytes))
+    number_of_samples = number_of_bytes ÷ packed_size
+
+    return map(i -> read_struct(io, T), 1:number_of_samples)
 end
 
 export get_time
